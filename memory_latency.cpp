@@ -132,6 +132,7 @@ int main (int argc, char *argv[])
     " sequential_access_offset_avg: " <<measurement_sequential_access_latency.access_time - measurement_sequential_access_latency.baseline << std::endl;
     free(cur_array);
     cur_array_size = static_cast<uint64_t>(cur_array_size * factor);
+    std::cout << "cur_array_size: " << cur_array_size << std::endl;
   }
   return 0;
 }
