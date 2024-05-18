@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 #define GALOIS_POLYNOMIAL ((1ULL << 63) | (1ULL << 62) | (1ULL << 60) | (1ULL << 59))
 #define MIN_ARRAY_BYTES_SIZE 100
@@ -104,7 +105,7 @@ int main (int argc, char *argv[])
   const uint64_t zero =
       nanosectime (t_dummy) > 1000000000ull ? 0 : nanosectime (t_dummy);
   uint64_t max_size = std::strtoull(argv[1], nullptr, 10); // TODO:verify!
-  uint64_t factor = std::strtoull(argv[2], nullptr, 10); // TODO:verify!
+  double factor = std::strtod(argv[2], nullptr);// 10); // TODO:verify!
   uint64_t repeat = std::strtoull(argv[3], nullptr, 10); // TODO:verify!
   uint64_t cur_array_size = MIN_ARRAY_BYTES_SIZE;
   while (cur_array_size <= max_size) {
