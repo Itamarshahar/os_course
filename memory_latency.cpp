@@ -133,6 +133,7 @@ int main (int argc, char *argv[])
     free(cur_array);
     cur_array_size = cur_array_size * factor;
     std::cout << "cur_array_size: " << cur_array_size << std::endl;
+    std::cout << "factor: " << factor << std::endl;
   }
   return 0;
 }
