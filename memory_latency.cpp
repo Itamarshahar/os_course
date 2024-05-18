@@ -109,11 +109,12 @@ int main (int argc, char *argv[])
   uint64_t cur_array_size = MIN_ARRAY_BYTES_SIZE;
   while (cur_array_size <= max_size) {
     auto *cur_array = (array_element_t*) malloc(cur_array_size);
-    uint64_t random_access_offset_sum;
-    uint64_t sequential_access_offset_sum;
+    uint64_t random_access_offset_sum = 0;
+    uint64_t sequential_access_offset_sum = 0;
 
-    for (auto i : repeat){
-      struct measurement measurement_random_access_latency =measure_latency(repeat,cur_array, cur_array_size, zero);
+    for (uint64_t i = 0; i < repeat; ++i) {
+      struct measurement measurement_random_access_latency = measure_latency
+          (repeat,cur_array, cur_array_size, zero);
       struct measurement measurement_sequential_access_latency
           = measure_sequential_latency(repeat,cur_array, cur_array_size, zero
           ); // TODO - DO we have 2 diffrent zeros? or we initiate the
@@ -135,4 +136,5 @@ int main (int argc, char *argv[])
     free(cur_array);
     cur_array_size = static_cast<int>(cur_array_size * factor);
   }
+  return 0;
 }
