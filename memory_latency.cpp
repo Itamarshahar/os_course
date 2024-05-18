@@ -110,7 +110,7 @@ int main (int argc, char *argv[])
   uint64_t cur_array_size = MIN_ARRAY_BYTES_SIZE;
   while (cur_array_size <= max_size) {
     auto* cur_array = static_cast<array_element_t*>(malloc(cur_array_size * sizeof(array_element_t)));
-    std::cout << "size of: " << sizeof (*cur_array) << std::endl;
+    std::cout << "size of: " << sizeof (&cur_array) << std::endl;
     struct measurement measurement_random_access_latency = measure_latency
           (repeat,cur_array, cur_array_size, zero);
     struct measurement measurement_sequential_access_latency
