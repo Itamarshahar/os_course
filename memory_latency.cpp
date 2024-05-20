@@ -161,7 +161,8 @@ int main (int argc, char *argv[])
             return INVALID_ARGUMENTS;
         }
   uint64_t cur_array_size = MIN_ARRAY_BYTES_SIZE;
-  while (cur_array_size * sizeof(array_element_t) <= max_size) {
+  while (cur_array_size){//) * sizeof(array_element_t) <= max_size) {
+//  while (cur_array_size * sizeof(array_element_t) <= max_size) {
     auto* cur_array = (array_element_t*)(malloc(cur_array_size * sizeof(array_element_t)));
     struct measurement measurement_random_access_latency = measure_latency
         (repeat,cur_array, cur_array_size, zero);
