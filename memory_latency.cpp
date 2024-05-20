@@ -1,4 +1,31 @@
+/**
+Conversation opened. 7 messages. 1 message unread.
+
+
+Skip to content
+    Using Gmail with screen readers
+git link
+Inbox
+
+    Itamar Shahar
+16:58 (1 hour ago)
+https://github.com/shmuel-cohen/os.git
+4
+
+Itamar Shahar
+17:52 (34 minutes ago)
+max_size: 6000000000 factor: 1.1 repeats: 100000000
+
+Itamar Shahar <itamar.degania@gmail.com>
+Attachments
+18:26 (0 minutes ago)
+to me
+
+
+One attachment
+• Scanned by Gmail
 // OS 24 EX1
+*/
 
 #include "memory_latency.h"
 #include "measure.h"
@@ -9,6 +36,9 @@
 
 #define GALOIS_POLYNOMIAL ((1ULL << 63) | (1ULL << 62) | (1ULL << 60) | (1ULL << 59))
 #define MIN_ARRAY_BYTES_SIZE 100
+#define INVALID_ARGUMENTS -1;
+#include <cmath>
+
 /**
  * Converts the struct timespec to time in nano-seconds.
  * @param t - the struct timespec to convert.
@@ -16,8 +46,9 @@
  */
 uint64_t nanosectime (struct timespec t)
 {
-  return static_cast<uint64_t>(t.tv_sec) * 1000000000ULL
-         + static_cast<uint64_t>(t.tv_nsec); //TODO check once again
+  return t.tv_sec * 1000000000 + t.tv_nsec; //TODO check once again
+//  return static_cast<uint64_t>(t.tv_sec) * 1000000000
+//         + static_cast<uint64_t>(t.tv_nsec); //TODO check once again
 }
 
 /**
@@ -78,6 +109,25 @@ measure_sequential_latency (uint64_t repeat, array_element_t *arr, uint64_t arr_
   return result;
 }
 
+bool valid_arguments (uint64_t max_size, double factor, uint64_t repeat)
+{
+    if (max_size < 100)
+    {
+        std::cerr << "max_size must be at least 100"<< std::endl;
+        return false;
+    }
+    if (factor <= 1)
+    {
+        std::cerr << "factor must great than least 1"<< std::endl;
+        return false;
+    }
+    if (repeat <= 0)
+    {
+        std::cerr << "repeat must great than 0 "<< std::endl;
+        return false;
+    }
+    return true;
+}
 /**
  * Runs the logic of the memory_latency program. Measures the access latency for random and sequential memory access
  * patterns.
@@ -97,29 +147,31 @@ int main (int argc, char *argv[])
   if (argc != 4)
   {
     std::cerr << "Usage: " << argv[0] << " max_size factor repeat"<< std::endl;
-    return 1;
+    return EXIT_FAILURE;
   }
   // zero==0, but the compiler doesn't know it. Use as the zero arg of measure_latency and measure_sequential_latency.
   struct timespec t_dummy;
   timespec_get (&t_dummy, TIME_UTC);
-  const uint64_t zero =
-      nanosectime (t_dummy) > 1000000000ull ? 0 : nanosectime (t_dummy);
+  const uint64_t zero = nanosectime (t_dummy) > 1000000000ull ? 0 : nanosectime (t_dummy);
   uint64_t max_size = std::strtoull(argv[1], nullptr, 10); // TODO:verify!
   double factor = std::strtod(argv[2], nullptr);// 10); // TODO:verify!
   uint64_t repeat = std::strtoull(argv[3], nullptr, 10); // TODO:verify!
+  if (!valid_arguments(max_size, factor, repeat))
+        {
+            return INVALID_ARGUMENTS;
+        }
   uint64_t cur_array_size = MIN_ARRAY_BYTES_SIZE;
-  while (cur_array_size <= max_size) {
-    auto* cur_array = (array_element_t*) malloc(cur_array_size *sizeof(array_element_t));
-    std::cout << "size of: " << sizeof (&cur_array) << std::endl;
+  while (cur_array_size * sizeof(array_element_t) <= max_size) {
+    auto* cur_array = (array_element_t*)(malloc(cur_array_size * sizeof(array_element_t)));
     struct measurement measurement_random_access_latency = measure_latency
-          (repeat,cur_array, cur_array_size, zero);
+        (repeat,cur_array, cur_array_size, zero);
     struct measurement measurement_sequential_access_latency
-          = measure_sequential_latency(repeat,cur_array, cur_array_size, zero);
-    std::cout << "mem_size: " <<  cur_array_size <<
-    " random_access_offset: " << measurement_random_access_latency.access_time - measurement_random_access_latency.baseline <<
-    " sequential_access_offset_avg: " <<measurement_sequential_access_latency.access_time - measurement_sequential_access_latency.baseline << std::endl;
+        = measure_sequential_latency(repeat,cur_array, cur_array_size, zero
+        );
+    std::cout <<  cur_array_size  <<  "," << measurement_random_access_latency.access_time - measurement_random_access_latency.baseline << "," <<
+              measurement_sequential_access_latency.access_time - measurement_sequential_access_latency.baseline << std::endl;
     free(cur_array);
-    cur_array_size = cur_array_size * factor;
+    cur_array_size = static_cast<uint64_t>(std::ceil(cur_array_size * factor));
   }
-  return 0;
+  return EXIT_SUCCESS;
 }
